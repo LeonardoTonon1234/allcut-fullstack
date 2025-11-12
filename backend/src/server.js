@@ -47,16 +47,11 @@ app.use('/api/relatorios', relatoriosRoutes);
 // 📦 Servindo frontend (modo produção)
 // ==========================
 const distPath = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
-
 app.use(express.static(distPath));
 
-// ⚙️ CORRIGIDO PARA EXPRESS 5
-app.get('/*', (req, res) => {
-  // Só responde com o index.html se não for rota da API
-  if (!req.path.startsWith('/api')) {
-    return res.sendFile(path.join(distPath, 'index.html'));
-  }
-  return res.status(404).json({ error: 'Not found' });
+// ✅ Express 5 não aceita '*' nem '/*', então usamos regex
+app.get(/^\/(?!api).*/, (req, res) => {
+  return res.sendFile(path.join(distPath, 'index.html'));
 });
 
 // ==========================
