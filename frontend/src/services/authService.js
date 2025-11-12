@@ -1,56 +1,35 @@
 // frontend/src/services/authService.js
+import axios from "axios";
 
-/**
- * Função para registrar um novo usuário no sistema.
- * Envia os dados do formulário (nome, email, senha etc.) para o backend via HTTP POST.
- */
+// 🧩 Configura a URL base da API (ajuste se estiver no Codespaces)
+const api = axios.create({
+  baseURL: "http://localhost:5000/api/auth", 
+  // 🔹 Se estiver no GitHub Codespaces, use esta linha abaixo no lugar:
+  // baseURL: "https://shiny-space-umbrella-x5w65jp969g936q95-5000.app.github.dev/api/auth",
+});
 
+// ==========================
+// 🧾 Registro de novo usuário
+// ==========================
 export async function register(userData) {
   try {
-    const response = await fetch("http://localhost:3001/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erro ao registrar: ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data; // retorna a resposta do backend
+    const response = await api.post("/register", userData);
+    return response.data;
   } catch (error) {
-    console.error("Erro no authService:", error);
-    throw error;
+    console.error("Erro no register:", error);
+    throw error.response?.data || { message: "Erro ao registrar usuário." };
   }
 }
 
-/**
- * Função para login de usuário.
- * Envia email e senha para o backend e recebe um token (se for o caso).
- */
+// ==========================
+// 🔐 Login de usuário
+// ==========================
 export async function login(credentials) {
   try {
-    const response = await fetch("http://localhost:3001/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erro ao fazer login: ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data;
+    const response = await api.post("/login", credentials);
+    return response.data;
   } catch (error) {
-    console.error("Erro no loginService:", error);
-    throw error;
+    console.error("Erro no login:", error);
+    throw error.response?.data || { message: "Erro ao fazer login." };
   }
 }
