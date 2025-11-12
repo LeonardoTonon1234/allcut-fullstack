@@ -93,6 +93,18 @@ const removerHorario = async (req, res) => {
   }
 };
 
+// ✅ Atualizar apenas a capacidade da máquina
+const atualizarCapacidade = async (req, res) => {
+  try {
+    const { capacidade } = req.body;
+    const maquina = await maquinasService.update(req.params.id, { capacidade });
+    res.json(maquina);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Exporta todas as funções do controller
 module.exports = {
   create,
   list,
@@ -102,5 +114,6 @@ module.exports = {
   adicionarData,
   removerData,
   adicionarHorario,
-  removerHorario
+  removerHorario,
+  atualizarCapacidade
 };
