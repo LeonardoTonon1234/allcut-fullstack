@@ -3,6 +3,22 @@ const router = express.Router();
 const maquinasController = require('../controllers/maquinasController');
 const { auth, admin } = require('../middleware/auth');
 
+// 🧠 LOG DE TESTE — para identificar qual função está quebrando
+console.log("🧠 Teste de imports =>", {
+  auth: typeof auth,
+  admin: typeof admin,
+  create: typeof maquinasController.create,
+  update: typeof maquinasController.update,
+  del: typeof maquinasController.del,
+  adicionarData: typeof maquinasController.adicionarData,
+  removerData: typeof maquinasController.removerData,
+  adicionarHorario: typeof maquinasController.adicionarHorario,
+  removerHorario: typeof maquinasController.removerHorario,
+  atualizarCapacidade: typeof maquinasController.atualizarCapacidade,
+  list: typeof maquinasController.list,
+  get: typeof maquinasController.get
+});
+
 // 🔹 Rotas de administração (somente o administrador pode usá-las)
 router.post('/', auth, admin, maquinasController.create);          // Criar nova máquina
 router.put('/:id', auth, admin, maquinasController.update);        // Atualizar informações da máquina
