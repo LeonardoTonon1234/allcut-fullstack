@@ -50,7 +50,8 @@ const distPath = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
 
 app.use(express.static(distPath));
 
-app.get('*', (req, res) => {
+// ⚙️ CORRIGIDO PARA EXPRESS 5
+app.get('/*', (req, res) => {
   // Só responde com o index.html se não for rota da API
   if (!req.path.startsWith('/api')) {
     return res.sendFile(path.join(distPath, 'index.html'));
