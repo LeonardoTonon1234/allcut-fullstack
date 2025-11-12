@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { register } from "../services/authService"; // ✅ Adicionado
 
 const Cadastro = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const Cadastro = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Validação de campos
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -48,17 +50,39 @@ const Cadastro = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Envio do formulário (cadastro real)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (validateForm()) {
+
+    if (!validateForm()) return;
+
+    try {
+      const response = await register({
+        nome: formData.fullName,
+        email: formData.email,
+        senha: formData.password,
+        telefone: formData.phone,
+        tipoUsuario: formData.userType,
+      });
+
       toast({
-        title: "Cadastro em desenvolvimento",
-        description: "A funcionalidade de cadastro será implementada em breve.",
+        title: "Sucesso!",
+        description: response.data.message || "Usuário cadastrado com sucesso!",
+      });
+
+      // Redireciona automaticamente para login
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (err: any) {
+      toast({
+        title: "Erro ao cadastrar",
+        description:
+          err.response?.data?.message ||
+          "Erro inesperado ao cadastrar usuário.",
       });
     }
   };
 
+  // Atualização dos inputs
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -143,7 +167,9 @@ const Cadastro = () => {
                   id="confirmPassword"
                   type="password"
                   value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("confirmPassword", e.target.value)
+                  }
                   className={errors.confirmPassword ? "border-red-500" : ""}
                   aria-label="Confirmar senha"
                 />
@@ -171,9 +197,7 @@ const Cadastro = () => {
 
               {/* Tipo de usuário */}
               <div className="space-y-2">
-                <Label className="text-foreground font-normal">
-                  Tipo de usuário
-                </Label>
+                <Label className="text-foreground font-normal">Tipo de usuário</Label>
                 <RadioGroup
                   value={formData.userType}
                   onValueChange={(value) => handleInputChange("userType", value)}

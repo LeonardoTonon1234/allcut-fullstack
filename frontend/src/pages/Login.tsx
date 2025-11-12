@@ -4,44 +4,65 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { login } from "../services/authService"; // 🔹 import do novo service
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validação básica
+
     if (!email || !password) {
       alert("Por favor, preencha todos os campos.");
       return;
     }
-    // Preparado para integração futura com endpoint /login
-    console.log("Login:", { email, password, rememberMe });
+
+    try {
+      setLoading(true);
+
+      // 🔹 envia os dados pro backend via service
+      const result = await login({ email, password });
+
+      // 🔹 sucesso
+      alert(result.message || "Login realizado com sucesso!");
+
+      // se quiser guardar o token:
+      if (result.token) {
+        localStorage.setItem("token", result.token);
+      }
+
+      // redireciona pra home
+      navigate("/");
+
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+      alert("Falha ao fazer login. Verifique suas credenciais.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-1 px-6 py-24">
         <div className="max-w-7xl mx-auto">
-          {/* Seção de Login */}
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-start mb-24">
-            {/* Título à esquerda */}
             <div className="flex items-center justify-center lg:justify-start">
               <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
                 Entrar no AllCut
               </h1>
             </div>
 
-            {/* Formulário à direita */}
             <div className="w-full max-w-md mx-auto lg:mx-0">
               <form onSubmit={handleLogin} className="space-y-6">
-                {/* Campo E-mail */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-foreground font-medium">
                     E-mail institucional
@@ -54,14 +75,9 @@ const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     aria-label="E-mail institucional"
-                    className="border-input"
                   />
-                  <p className="text-sm text-muted-foreground">
-                    O email deve ser institucional.
-                  </p>
                 </div>
 
-                {/* Campo Senha */}
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-foreground font-medium">
                     Senha
@@ -74,20 +90,14 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     aria-label="Senha"
-                    className="border-input"
                   />
-                  <p className="text-sm text-muted-foreground">
-                    A senha deve ter pelo menos 8 caracteres.
-                  </p>
                 </div>
 
-                {/* Checkbox Lembrar-me */}
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="remember"
                     checked={rememberMe}
                     onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                    aria-label="Lembrar-me"
                   />
                   <Label
                     htmlFor="remember"
@@ -97,7 +107,6 @@ const Login = () => {
                   </Label>
                 </div>
 
-                {/* Botões */}
                 <div className="flex gap-4 pt-4">
                   <Button
                     type="button"
@@ -113,44 +122,13 @@ const Login = () => {
                     variant="default"
                     size="lg"
                     className="flex-1"
+                    disabled={loading}
                   >
-                    Entrar
+                    {loading ? "Entrando..." : "Entrar"}
                   </Button>
                 </div>
               </form>
             </div>
-          </div>
-
-          {/* Seção de Dicas */}
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-start mb-12">
-            {/* Título à esquerda */}
-            <div className="flex items-center justify-center lg:justify-start">
-              <h2 className="text-4xl lg:text-5xl font-bold text-foreground">
-                Dicas
-              </h2>
-            </div>
-
-            {/* Caixa de dicas à direita */}
-            <div className="w-full max-w-md mx-auto lg:mx-0">
-              <div className="border border-border rounded-lg p-6 bg-background">
-                <h3 className="font-semibold text-foreground mb-3">Dicas</h3>
-                <ul className="space-y-2 text-sm text-foreground">
-                  <li>• Usar e-mail institucional</li>
-                  <li>• Manter dados atualizados…</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Link Esqueci minha senha */}
-          <div className="text-center lg:text-left lg:ml-[calc(50%+3rem)]">
-            <button
-              type="button"
-              className="text-sm text-foreground hover:text-muted-foreground transition-colors underline"
-              onClick={() => alert("Funcionalidade em desenvolvimento")}
-            >
-              Esqueci minha senha
-            </button>
           </div>
         </div>
       </main>
