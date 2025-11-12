@@ -4,6 +4,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
 // Carrega as variáveis do arquivo .env
 dotenv.config();
@@ -18,15 +19,16 @@ app.use(cors());
 // ==========================
 // 🧱 Importação de rotas
 // ==========================
-const authRoutes = require('./src/routes/auth');
-const maquinasRoutes = require('./src/routes/maquinas');
-const reservasRoutes = require('./src/routes/reservas');
-const relatoriosRoutes = require('./src/routes/relatorios');
+// 🔹 Ajuste correto dos caminhos (sem /src/)
+const authRoutes = require('./routes/auth');
+const maquinasRoutes = require('./routes/maquinas');
+const reservasRoutes = require('./routes/reservas');
+const relatoriosRoutes = require('./routes/relatorios');
 
 // ==========================
 // 🔒 Middlewares de segurança
 // ==========================
-const { auth } = require('./src/middleware/auth');
+const { auth } = require('./middleware/auth');
 
 // ==========================
 // 🌐 Rotas principais
@@ -35,19 +37,21 @@ app.get('/', (req, res) => {
   res.send('✅ API AllCut rodando com sucesso!');
 });
 
+// Rotas da aplicação
 app.use('/api/auth', authRoutes);
 app.use('/api/maquinas', maquinasRoutes);
 app.use('/api/reservas', reservasRoutes);
 app.use('/api/relatorios', relatoriosRoutes);
 
 // ==========================
-// 📦 Static file serving (production)
+// 📦 Servindo frontend (modo produção)
 // ==========================
-const path = require('path');
 const distPath = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
+
 app.use(express.static(distPath));
+
 app.get('*', (req, res) => {
-  // Only handle non-API routes
+  // Só responde com o index.html se não for rota da API
   if (!req.path.startsWith('/api')) {
     return res.sendFile(path.join(distPath, 'index.html'));
   }
